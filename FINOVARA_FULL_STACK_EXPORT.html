@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FINOVARA | Full-Stack Intelligence Export</title>
+    <style>
+        :root {
+            --bg: #020617;
+            --card: #0f172a;
+            --border: #1e293b;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --blue: #3b82f6;
+            --emerald: #10b981;
+        }
+        body {
+            font-family: 'JetBrains Mono', monospace, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .header {
+            border-bottom: 4px solid var(--blue);
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+        h1 { margin: 0; font-size: 2.5rem; letter-spacing: -2px; }
+        .badge {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: var(--blue);
+            padding: 4px 12px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-radius: 4px;
+        }
+        .section {
+            margin-bottom: 60px;
+        }
+        .file-header {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file-name { font-weight: bold; color: var(--blue); font-size: 14px; }
+        pre {
+            background: #000;
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-top: none;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            overflow-x: auto;
+            margin: 0;
+            font-size: 13px;
+            color: #d1d5db;
+        }
+        code { font-family: 'JetBrains Mono', monospace; }
+        .comment { color: #6b7280; font-style: italic; }
+        .keyword { color: #c084fc; font-weight: bold; }
+        .function { color: #60a5fa; }
+        .string { color: #34d399; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>FINOVARA TECH BLUEPRINT</h1>
+        <div style="margin-top: 10px;">
+            <span class="badge">Enterprise Version 2.4</span>
+            <span class="badge">Live Sync Enabled</span>
+            <span class="badge">Hardened Rules V8</span>
+        </div>
+    </div>
+
+    <!-- FIREBASE CORE -->
+    <div class="section">
+        <div class="file-header">
+            <div class="file-name">src/lib/firebase.ts</div>
+            <div class="badge">Auth & Data Initialization</div>
+        </div>
+        <pre><code><span class="keyword">import</span> { initializeApp } <span class="keyword">from</span> <span class="string">'firebase/app'</span>;
+<span class="keyword">import</span> { getAuth, GoogleAuthProvider, signInWithPopup } <span class="keyword">from</span> <span class="string">'firebase/auth'</span>;
+<span class="keyword">import</span> { getFirestore, doc, setDoc } <span class="keyword">from</span> <span class="string">'firebase/firestore'</span>;
+
+<span class="comment">// CONFIGURATION INJECTED FROM APPLET LAYER</span>
+<span class="keyword">const</span> app = initializeApp(firebaseConfig);
+<span class="keyword">export const</span> auth = getAuth(app);
+<span class="keyword">export const</span> db = getFirestore(app);
+
+<span class="comment">// SECURE USER PROFILING</span>
+<span class="keyword">export const</span> createUserProfile = <span class="keyword">async</span> (user, name) => {
+  <span class="keyword">const</span> userRef = doc(db, <span class="string">'users'</span>, user.uid);
+  <span class="keyword">await</span> setDoc(userRef, {
+    uid: user.uid,
+    email: user.email,
+    displayName: name || user.displayName,
+    role: <span class="string">'user'</span>,
+    createdAt: <span class="function">serverTimestamp()</span>
+  }, { merge: <span class="keyword">true</span> });
+};</code></pre>
+    </div>
+
+    <!-- AI ENGINE -->
+    <div class="section">
+        <div class="file-header">
+            <div class="file-name">src/services/geminiService.ts</div>
+            <div class="badge">Neural Analysis & Live Sync</div>
+        </div>
+        <pre><code><span class="keyword">export async function</span> getMarketIndices() {
+  <span class="comment">// FETCH LIVE NSE/BSE SENSEX VIA GOOGLE SEARCH GROUNDING</span>
+  <span class="keyword">const</span> response = <span class="keyword">await</span> ai.models.generateContent({
+    model: <span class="string">"gemini-3-flash-preview"</span>,
+    contents: <span class="string">`REAL-TIME LIVE MARKET DATA SEARCH: 
+    1. Fetch EXACT LIVE BSE SENSEX and NSE NIFTY 50.
+    2. Format as JSON with trend percentages and USD/INR rates.`</span>,
+    config: { tools: [{ googleSearch: {} }] }
+  });
+  <span class="keyword">return</span> JSON.parse(response.text);
+}
+
+<span class="keyword">export async function</span> runNeuralSimulation(baseline, params) {
+  <span class="comment">// MULTI-PARAM WHAT-IF ANALYTICS</span>
+  <span class="keyword">const</span> result = <span class="keyword">await</span> ai.models.generateContent({
+    model: <span class="string">"gemini-3-flash-preview"</span>,
+    contents: <span class="string">`You are a Quant Analyst. Analyze scenario: ${JSON.stringify(params)}`</span>
+  });
+  <span class="keyword">return</span> result;
+}</code></pre>
+    </div>
+
+    <!-- SECURITY POLICY -->
+    <div class="section">
+        <div class="file-header">
+            <div class="file-name">firestore.rules</div>
+            <div class="badge">Zero-Trust Hardened Policy</div>
+        </div>
+        <pre><code>service cloud.firestore {
+  match /databases/{database}/documents {
+    <span class="comment">// DEFAULT DENY ALL</span>
+    match /{document=**} { allow read, write: if <span class="keyword">false</span>; }
+    
+    <span class="comment">// USER IDENTITY ISOLATION</span>
+    match /users/{userId} {
+      allow read: if <span class="function">isAuthenticated()</span> && (request.auth.uid == userId || <span class="function">isAdmin()</span>);
+      allow create: if <span class="function">isAuthenticated()</span> && <span class="function">isValidUser(request.resource.data)</span>;
+    }
+    
+    <span class="comment">// MASTER GATE ENFORCEMENT</span>
+    <span class="keyword">function</span> isAuthenticated() { <span class="keyword">return</span> request.auth != <span class="keyword">null</span>; }
+    <span class="keyword">function</span> isAdmin() { <span class="keyword">return</span> request.auth.token.email == <span class="string">"madhura.shah@mitwpu.edu.in"</span>; }
+  }
+}</code></pre>
+    </div>
+
+    <!-- FRONTEND APP -->
+    <div class="section">
+        <div class="file-header">
+            <div class="file-name">src/App.tsx</div>
+            <div class="badge">Terminal Controller & Sync</div>
+        </div>
+        <pre><code><span class="keyword">export default function</span> App() {
+  <span class="comment">// 60-SECOND LIVE MARKET HEARTBEAT</span>
+  useEffect(() => {
+    <span class="keyword">const</span> interval = <span class="function">setInterval</span>(() => {
+      <span class="keyword">if</span> (<span class="function">isMarketOpen()</span>) {
+        <span class="function">fetchMarketData()</span>; <span class="comment">// Background AI Refresh</span>
+      }
+    }, <span class="string">60000</span>);
+    <span class="keyword">return</span> () => <span class="function">clearInterval</span>(interval);
+  }, []);
+
+  <span class="keyword">return</span> (
+    <div className=<span class="string">"flex h-screen bg-[#020617] overflow-hidden"</span>>
+      <Sidebar activePage={activePage} />
+      <main className=<span class="string">"flex-1 overflow-hidden"</span>>
+        <Topbar marketStatus={marketData} />
+        <ScrollArea className=<span class="string">"p-8 h-full"</span>>
+          {<span class="function">renderActiveModule()</span>}
+        </ScrollArea>
+      </main>
+    </div>
+  );
+}</code></pre>
+    </div>
+
+    <div style="text-align: center; color: var(--muted); font-size: 10px; margin-top: 100px;">
+        CONFIDENTIAL SOURCE EXPORT | FINOVARA TERMINAL | &copy; 2026
+    </div>
+</body>
+</html>

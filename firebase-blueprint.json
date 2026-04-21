@@ -1,0 +1,100 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Stores user-specific settings and profile information.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique user ID from Firebase Auth" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "admin"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "preferences": {
+          "type": "object",
+          "properties": {
+            "currency": { "type": "string", "enum": ["INR", "USD"] },
+            "aiPersonality": { "type": "string", "enum": ["analytical", "conservative", "aggressive"] }
+          }
+        }
+      },
+      "required": ["uid", "email"]
+    },
+    "FinancialReport": {
+      "title": "Financial Report",
+      "description": "Stores extracted data from uploaded financial statements.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "uid": { "type": "string", "description": "Owner of the report" },
+        "fileName": { "type": "string" },
+        "fileType": { "type": "string" },
+        "uploadDate": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["processing", "analyzed", "error"] },
+        "data": {
+          "type": "object",
+          "properties": {
+            "revenue": { "type": "number" },
+            "expenses": { "type": "number" },
+            "netMargin": { "type": "number" },
+            "healthScore": { "type": "number" }
+          }
+        },
+        "aiSummary": { "type": "string" },
+        "ratios": {
+          "type": "object",
+          "properties": {
+            "currentRatio": { "type": "number" },
+            "debtToEquity": { "type": "number" }
+          }
+        }
+      },
+      "required": ["uid", "fileName", "uploadDate"]
+    },
+    "ChatMessage": {
+      "title": "Chat Message",
+      "description": "Individual messages in an AI chat session.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "uid": { "type": "string" },
+        "role": { "type": "string", "enum": ["user", "assistant"] },
+        "content": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "role", "content", "timestamp"]
+    },
+    "SystemLog": {
+      "title": "System Log",
+      "description": "Critical system events and audit trails.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "action": { "type": "string" },
+        "details": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["action", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "UserProfile",
+      "description": "User profile documents."
+    },
+    "/users/{uid}/reports/{reportId}": {
+      "schema": "FinancialReport",
+      "description": "Financial reports uploaded by the user."
+    },
+    "/users/{uid}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Chat history for the user's AI assistant."
+    },
+    "/system_logs/{logId}": {
+      "schema": "SystemLog",
+      "description": "Global system activity logs for audit trails."
+    }
+  }
+}

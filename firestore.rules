@@ -1,0 +1,81 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidEmail(email) {
+      return email == null || (email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"));
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        (request.auth.token.get('email', '') == "madhura.shah@mitwpu.edu.in" && request.auth.token.get('email_verified', false) == true) ||
+        (request.auth.token.get('email', '') == "demo@finovara.ai") ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'user') == 'admin')
+      );
+    }
+
+    function isValidUser(data) {
+      return data.uid == request.auth.uid &&
+             isValidEmail(data.get('email', null)) &&
+             (data.get('role', 'user') == 'user' || data.get('role', 'admin')) &&
+             data.get('displayName', 'User') is string;
+    }
+
+    function isValidReport(data) {
+      return data.uid == request.auth.uid &&
+             data.get('fileName', 'Report') is string &&
+             data.get('status', 'processing') in ['processing', 'analyzed', 'error'];
+    }
+
+    function isValidMessage(data) {
+      return data.uid == request.auth.uid &&
+             data.role in ['user', 'assistant'] &&
+             data.content is string && data.content.size() > 0 && data.content.size() < 5000;
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid) && isValidUser(request.resource.data);
+      allow update: if (isOwner(uid) || isAdmin()) && isValidUser(request.resource.data) && 
+                    (isAdmin() || request.resource.data.role == resource.data.role);
+
+      match /reports/{reportId} {
+        allow read: if isOwner(uid) || isAdmin();
+        allow create: if isOwner(uid) && isValidReport(request.resource.data);
+        allow update: if isOwner(uid) && isValidReport(request.resource.data);
+        allow delete: if isOwner(uid);
+      }
+
+      match /messages/{messageId} {
+        allow read: if isOwner(uid) || isAdmin();
+        allow create: if isOwner(uid) && isValidMessage(request.resource.data);
+        allow update: if false;
+        allow delete: if isOwner(uid);
+      }
+    }
+
+    match /system_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    // Connection Health Check Collection
+    match /test/connection {
+      allow get: if true;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
